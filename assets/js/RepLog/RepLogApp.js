@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import RepLogList from "./RepLogList";
+import PropTypes from 'prop-types';
+import uuid from 'uuid/v4';
+
+import RepLogs from "./RepLogs";
 
 export default class RepLogApp extends Component {
 
@@ -8,9 +11,15 @@ export default class RepLogApp extends Component {
 
         this.state = {
             highlightedRowId: null,
+            repLogs: [
+                { id: uuid(), reps: 25, itemLabel: 'My Laptop', totalWeightLifted: 112.5 },
+                { id: uuid(), reps: 10, itemLabel: 'Big Fat Cat', totalWeightLifted: 180 },
+                { id: uuid(), reps: 4, itemLabel: 'My Laptop', totalWeightLifted: 72 }
+            ]
         };
 
         this.handleRowClick = this.handleRowClick.bind(this);
+        this.handleAddRepLog = this.handleAddRepLog.bind(this);
     }
 
     handleRowClick(repLogId) {
@@ -19,82 +28,35 @@ export default class RepLogApp extends Component {
         })
     }
 
+    handleAddRepLog(itemLabel, reps) {
+        const repLogs = this.state.repLogs;
+        const newRep = {
+            id: uuid(),
+            reps: reps,
+            itemLabel: itemLabel,
+            totalWeightLifted: Math.floor(Math.random()*50),
+        };
+
+        this.setState(prevState => {
+            const newRepLogs = [...prevState.repLogs, newRep];
+
+            return {repLogs: newRepLogs}
+        });
+    }
+
+
     render() {
-        const { highlightedRowId } = this.state;
-        const { withHeart } = this.props;
-
-        let heart ='';
-
-        if(withHeart) {
-             heart = <span>💜</span>;
-        }
-
-        const repLogs = [
-            { id: 1, reps: 25, itemLabel: 'My Laptop', totalWeightLifted: 112.5 },
-            { id: 2, reps: 10, itemLabel: 'Big Fat Cat', totalWeightLifted: 180 },
-            { id: 8, reps: 4, itemLabel: 'My Laptop', totalWeightLifted: 72 }
-        ];
-
         return (
-            <div className="row">
-                <div className="col-md-7">
-                    <h2>Lift History! {heart}</h2>
-
-                    <table className="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>What</th>
-                            <th>How many times?</th>
-                            <th>Weight</th>
-                            <th>&nbsp;</th>
-                        </tr>
-                        </thead>
-                        <RepLogList
-                            highlightedRowId={highlightedRowId}
-                            onRowClick={this.handleRowClick}
-                        />
-                        <tfoot>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <th>Total</th>
-                            <th>TODO</th>
-                            <td>&nbsp;</td>
-                        </tr>
-                        </tfoot>
-                    </table>
-
-                    <form className="form-inline">
-                        <div className="form-group">
-                            <label className="sr-only control-label required"
-                                   htmlFor="rep_log_item">
-                                What did you lift?
-                            </label>
-                            <select id="rep_log_item"
-                                    name="item"
-                                    required="required"
-                                    className="form-control">
-                                <option value="">What did you lift?</option>
-                                <option value="cat">Cat</option>
-                                <option value="fat_cat">Big Fat Cat</option>
-                                <option value="laptop">My Laptop</option>
-                                <option value="coffee_cup">Coffee Cup</option>
-                            </select>
-                        </div>
-                        {' '}
-                        <div className="form-group">
-                            <label className="sr-only control-label required" htmlFor="rep_log_reps">
-                                How many times?
-                            </label>
-                            <input type="number" id="rep_log_reps"
-                                   name="reps" required="required"
-                                   placeholder="How many times?"
-                                   className="form-control"/>
-                        </div>
-                        {' '}
-                        <button type="submit" className="btn btn-primary">I Lifted it!</button>
-                    </form>
-                </div>
-            </div>
-        );
+            <RepLogs
+                {...this.props}
+                {...this.state}
+                onRowClick = {this.handleRowClick}
+                onAddRepLog = {this.handleAddRepLog}
+            />
+        )
     }
 }
+
+RepLogApp.propTypes = {
+    withHeart: PropTypes.bool,
+};
